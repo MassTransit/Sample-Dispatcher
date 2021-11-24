@@ -25,7 +25,7 @@ namespace Sample.Components.Tests
             IRequestClient<DispatchRequest> requestClient =
                 TestHarness.Bus.CreateRequestClient<DispatchRequest>(locator.DispatchRequestEndpointAddress, RequestTimeout.After(s: 5));
 
-            Response<DispatchInboundRequestCompleted> response = await requestClient.GetResponse<DispatchInboundRequestCompleted>(new DispatchRequest
+            Response<DispatchRequestCompleted> response = await requestClient.GetResponse<DispatchRequestCompleted>(new DispatchRequest
             {
                 TransactionId = transactionId,
                 ReceiveTimestamp = receiveTimestamp,
@@ -49,7 +49,7 @@ namespace Sample.Components.Tests
             IRequestClient<DispatchRequest> requestClient =
                 TestHarness.Bus.CreateRequestClient<DispatchRequest>(locator.DispatchRequestEndpointAddress, RequestTimeout.After(s: 5));
 
-            Response<DispatchInboundRequestCompleted> response = await requestClient.GetResponse<DispatchInboundRequestCompleted>(new DispatchRequest
+            Response<DispatchRequestCompleted> response = await requestClient.GetResponse<DispatchRequestCompleted>(new DispatchRequest
             {
                 TransactionId = transactionId,
                 ReceiveTimestamp = receiveTimestamp,

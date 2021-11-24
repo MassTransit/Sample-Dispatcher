@@ -1,16 +1,16 @@
 namespace Sample.Components.Tests
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-    using Contracts;
-    using MassTransit;
-    using Microsoft.Extensions.DependencyInjection;
-    using NUnit.Framework;
-
-
     namespace RequestTransaction
     {
+        using System;
+        using System.Collections.Generic;
+        using System.Threading.Tasks;
+        using Contracts;
+        using MassTransit;
+        using Microsoft.Extensions.DependencyInjection;
+        using NUnit.Framework;
+
+
         public class Receiving_a_new_inbound_request :
             TransactionStateMachineTestFixture
         {

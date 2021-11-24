@@ -1,12 +1,11 @@
-namespace Sample.Service
+namespace Sample.Components.Tests
 {
     using System.Reflection;
-    using Components.Configuration;
-    using Components.Services;
+    using Configuration;
     using MassTransit.Internals.Extensions;
     using MassTransit.Util;
-    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
+    using Services;
 
 
     public static class ContainerConfigurationExtensions
@@ -20,7 +19,7 @@ namespace Sample.Service
                 collection.AddSingleton(typeof(IRequestRoutingCandidate), type);
         }
 
-        public static void AddReceiveEndpointOptions(this IServiceCollection collection, IConfiguration configuration)
+        public static void AddReceiveEndpointOptions(this IServiceCollection collection)
         {
             var types = AssemblyTypeCache.FindTypes(new[] { typeof(ReceiveEndpointOptions).Assembly }, x => x.BaseType == typeof(ReceiveEndpointOptions))
                 .GetAwaiter().GetResult();
@@ -30,16 +29,14 @@ namespace Sample.Service
                 typeof(ContainerConfigurationExtensions)
                     .GetMethod(nameof(AddOptionsInternal), BindingFlags.Static | BindingFlags.NonPublic)
                     .MakeGenericMethod(type)
-                    .Invoke(null, new object[] { collection, configuration });
+                    .Invoke(null, new object[] { collection });
             }
         }
 
-        static void AddOptionsInternal<TOptions>(IServiceCollection collection, IConfiguration configuration)
+        static void AddOptionsInternal<TOptions>(IServiceCollection collection)
             where TOptions : class
         {
-            var sectionName = typeof(TOptions).Name.Replace("Options", "");
-
-            collection.Configure<TOptions>(configuration.GetSection($"Endpoint:{sectionName}"));
+            collection.AddOptions<TOptions>();
         }
     }
 }

@@ -26,7 +26,7 @@
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            Response<DispatchInboundRequestCompleted> response = await _client.GetResponse<DispatchInboundRequestCompleted>(new DispatchRequest
+            Response<DispatchRequestCompleted> response = await _client.GetResponse<DispatchRequestCompleted>(new DispatchRequest
             {
                 TransactionId = model.TransactionId,
                 RoutingKey = model.RoutingKey,

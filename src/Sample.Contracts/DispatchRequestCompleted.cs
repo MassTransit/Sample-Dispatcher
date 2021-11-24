@@ -3,7 +3,7 @@ namespace Sample.Contracts
     using System;
 
 
-    public record DispatchInboundRequestCompleted
+    public record DispatchRequestCompleted
     {
         public string TransactionId { get; init; }
 

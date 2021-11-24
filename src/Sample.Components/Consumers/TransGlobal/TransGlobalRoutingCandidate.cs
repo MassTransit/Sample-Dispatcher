@@ -1,4 +1,4 @@
-namespace Sample.Components.Consumers.FirstNational
+namespace Sample.Components.Consumers.TransGlobal
 {
     using System;
     using System.Threading.Tasks;
@@ -6,19 +6,19 @@ namespace Sample.Components.Consumers.FirstNational
     using Services;
 
 
-    public class FirstNationalRoutingCandidate :
+    public class TransGlobalRoutingCandidate :
         IRequestRoutingCandidate
     {
         readonly Uri _destinationAddress;
 
-        public FirstNationalRoutingCandidate(IEndpointNameFormatter formatter)
+        public TransGlobalRoutingCandidate(IEndpointNameFormatter formatter)
         {
-            _destinationAddress = new Uri($"exchange:{formatter.Consumer<FirstNationalRequestConsumer>()}");
+            _destinationAddress = new Uri($"exchange:{formatter.Consumer<TransGlobalRequestConsumer>()}");
         }
 
         public Task<RouteResult?> IsValidCandidate(RequestRoutingCriteria criteria)
         {
-            return string.Equals(criteria.RoutingKey, "FirstNatl", StringComparison.OrdinalIgnoreCase)
+            return string.Equals(criteria.RoutingKey, "TransGlobal", StringComparison.OrdinalIgnoreCase)
                 ? Task.FromResult<RouteResult?>(new RouteResult
                 {
                     Disposition = RouteDisposition.Destination,

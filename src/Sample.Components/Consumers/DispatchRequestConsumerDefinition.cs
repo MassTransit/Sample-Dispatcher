@@ -1,25 +1,25 @@
 namespace Sample.Components.Consumers
 {
+    using Configuration;
     using GreenPipes;
     using MassTransit;
     using MassTransit.ConsumeConfigurators;
     using MassTransit.Definition;
     using Microsoft.Extensions.Options;
-    using StateMachines;
 
 
-    public class DispatchInboundRequestConsumerDefinition :
-        ConsumerDefinition<DispatchInboundRequestConsumer>
+    public class DispatchRequestConsumerDefinition :
+        ConsumerDefinition<DispatchRequestConsumer>
     {
-        readonly TransactionStateOptions _options;
+        readonly DispatchOptions _options;
 
-        public DispatchInboundRequestConsumerDefinition(IOptions<TransactionStateOptions> options)
+        public DispatchRequestConsumerDefinition(IOptions<DispatchOptions> options)
         {
             _options = options.Value;
         }
 
         protected override void ConfigureConsumer(IReceiveEndpointConfigurator endpointConfigurator,
-            IConsumerConfigurator<DispatchInboundRequestConsumer> consumerConfigurator)
+            IConsumerConfigurator<DispatchRequestConsumer> consumerConfigurator)
         {
             _options.Configure(endpointConfigurator);
 

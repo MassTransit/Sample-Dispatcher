@@ -15,14 +15,14 @@ namespace Sample.Components.Tests
         {
             base.ConfigureMassTransit(configurator);
 
-            configurator.AddConsumer<DispatchInboundRequestConsumer, DispatchInboundRequestConsumerDefinition>();
+            configurator.AddConsumer<DispatchRequestConsumer, DispatchRequestConsumerDefinition>();
         }
 
         protected override void ConfigureServices(IServiceCollection collection)
         {
             base.ConfigureServices(collection);
 
-            collection.AddOptions<TransactionStateOptions>();
+            collection.AddReceiveEndpointOptions();
 
             collection.AddSingleton<IServiceEndpointLocator, ServiceEndpointLocator>();
 

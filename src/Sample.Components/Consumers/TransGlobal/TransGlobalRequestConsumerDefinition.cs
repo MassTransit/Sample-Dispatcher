@@ -1,4 +1,4 @@
-namespace Sample.Components.Consumers.FirstNational
+namespace Sample.Components.Consumers.TransGlobal
 {
     using Configuration;
     using GreenPipes;
@@ -8,18 +8,18 @@ namespace Sample.Components.Consumers.FirstNational
     using Microsoft.Extensions.Options;
 
 
-    public class FirstNationalRequestConsumerDefinition :
-        ConsumerDefinition<FirstNationalRequestConsumer>
+    public class TransGlobalRequestConsumerDefinition :
+        ConsumerDefinition<TransGlobalRequestConsumer>
     {
-        readonly FirstNationalOptions _options;
+        readonly TransGlobalOptions _options;
 
-        public FirstNationalRequestConsumerDefinition(IOptions<FirstNationalOptions> options)
+        public TransGlobalRequestConsumerDefinition(IOptions<TransGlobalOptions> options)
         {
             _options = options.Value;
         }
 
         protected override void ConfigureConsumer(IReceiveEndpointConfigurator endpointConfigurator,
-            IConsumerConfigurator<FirstNationalRequestConsumer> consumerConfigurator)
+            IConsumerConfigurator<TransGlobalRequestConsumer> consumerConfigurator)
         {
             _options.Configure(endpointConfigurator);
 

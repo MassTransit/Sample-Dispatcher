@@ -5,11 +5,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MassTransit.EntityFrameworkCore" Version="7.2.4" />
+    <PackageReference Include="MassTransit.EntityFrameworkCore" Version="7.2.4"/>
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Sample.Components\Sample.Components.csproj" />
+    <ProjectReference Include="..\Sample.Components\Sample.Components.csproj"/>
   </ItemGroup>
 
 </Project>

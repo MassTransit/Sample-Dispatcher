@@ -5,7 +5,6 @@ namespace Sample.Service
     using System.Threading.Tasks;
     using Components;
     using Components.Services;
-    using Components.StateMachines;
     using Data;
     using MassTransit;
     using Microsoft.EntityFrameworkCore;
@@ -25,11 +24,11 @@ namespace Sample.Service
         public static async Task Main(string[] args)
         {
             Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Error()
-                .MinimumLevel.Override("MassTransit", LogEventLevel.Error)
-                .MinimumLevel.Override("Microsoft", LogEventLevel.Error)
-                .MinimumLevel.Override("Microsoft.EntityFrameworkCore", LogEventLevel.Fatal)
-                .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Database.Command", LogEventLevel.Fatal)
+                .MinimumLevel.Information()
+                .MinimumLevel.Override("MassTransit", LogEventLevel.Debug)
+                .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+                .MinimumLevel.Override("Microsoft.EntityFrameworkCore", LogEventLevel.Warning)
+                .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Database.Command", LogEventLevel.Warning)
                 .Enrich.FromLogContext()
                 .WriteTo.Console()
                 .CreateLogger();
@@ -68,12 +67,11 @@ namespace Sample.Service
                         });
                     });
 
-                    services.AddOptions<TransactionStateOptions>();
-
                     services.AddSingleton<IServiceEndpointLocator, ServiceEndpointLocator>();
                     services.AddSingleton<IRequestRoutingService, RequestRoutingService>();
 
                     services.AddRequestRoutingCandidates();
+                    services.AddReceiveEndpointOptions(hostContext.Configuration);
 
                     services.AddMassTransit(x =>
                     {

@@ -7,13 +7,13 @@ namespace Sample.Components.Consumers
     using Services;
 
 
-    public class DispatchInboundRequestConsumer :
+    public class DispatchRequestConsumer :
         IConsumer<DispatchRequest>
     {
         readonly IServiceEndpointLocator _endpointLocator;
         readonly IRequestRoutingService _routingService;
 
-        public DispatchInboundRequestConsumer(IRequestRoutingService routingService, IServiceEndpointLocator endpointLocator)
+        public DispatchRequestConsumer(IRequestRoutingService routingService, IServiceEndpointLocator endpointLocator)
         {
             _routingService = routingService;
             _endpointLocator = endpointLocator;
@@ -34,7 +34,8 @@ namespace Sample.Components.Consumers
             {
                 var completedTimestamp = DateTime.UtcNow;
 
-                await context.RespondAsync(new DispatchInboundRequestCompleted
+                // response with the unmodified body to the request
+                await context.RespondAsync(new DispatchRequestCompleted
                 {
                     TransactionId = context.Message.TransactionId,
                     RoutingKey = context.Message.RoutingKey,
@@ -42,6 +43,8 @@ namespace Sample.Components.Consumers
                     CompletedTimestamp = completedTimestamp
                 });
 
+                // publish to remove any pending state machine instance since not dispatched requests
+                // should not handle a response
                 await context.Publish(new RequestNotDispatched
                 {
                     RequestMessageId = context.MessageId,
