@@ -3,11 +3,9 @@ namespace Sample.Contracts
     using System;
 
 
-    public record RequestCompleted :
-        RequestEvent
+    public record ResponseCompleted :
+        ResponseEvent
     {
         public DateTime? CompletedTimestamp { get; init; }
-
-        public Uri? ResponseAddress { get; init; }
     }
 }

@@ -11,19 +11,19 @@ namespace Sample.Components.StateMachines
     /// <summary>
     /// Forwards the command to the consumer
     /// </summary>
-    public class DispatchNewInboundRequestActivity :
+    public class DispatchRequestActivity :
         Activity<TransactionState, DispatchRequest>
     {
         readonly IServiceEndpointLocator _locator;
 
-        public DispatchNewInboundRequestActivity(IServiceEndpointLocator locator)
+        public DispatchRequestActivity(IServiceEndpointLocator locator)
         {
             _locator = locator;
         }
 
         public void Probe(ProbeContext context)
         {
-            context.CreateScope("dispatchNewInboundRequest");
+            context.CreateScope("dispatch-request");
         }
 
         public void Accept(StateMachineVisitor visitor)

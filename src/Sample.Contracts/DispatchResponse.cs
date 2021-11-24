@@ -1,9 +1,9 @@
-﻿namespace Sample.Contracts
+namespace Sample.Contracts
 {
     using System;
 
 
-    public record DispatchRequest
+    public record DispatchResponse
     {
         /// <summary>
         /// Unique transactionId, to identify this request and match up to subsequent response
@@ -11,18 +11,13 @@
         public string? TransactionId { get; init; }
 
         /// <summary>
-        /// The routing key/bin for the request
-        /// </summary>
-        public string? RoutingKey { get; init; }
-
-        /// <summary>
         /// The request body
         /// </summary>
         public string? Body { get; init; }
 
         /// <summary>
-        /// Timestamp, in UTC, when the request was received
+        /// Timestamp, in UTC, when the response was received
         /// </summary>
-        public DateTime? RequestTimestamp { get; init; }
+        public DateTime? ResponseTimestamp { get; init; }
     }
 }

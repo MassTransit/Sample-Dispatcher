@@ -1,5 +1,8 @@
 namespace Sample.Components.StateMachines
 {
+    using System;
+    using Configuration;
+    using Contracts;
     using GreenPipes;
     using MassTransit;
     using MassTransit.Definition;
@@ -24,6 +27,18 @@ namespace Sample.Components.StateMachines
             if (_options.ConcurrentMessageLimit.HasValue)
                 endpointConfigurator.ConcurrentMessageLimit = _options.ConcurrentMessageLimit.Value;
 
+            var partitionCount = endpointConfigurator.PrefetchCount;
+            if (endpointConfigurator.ConcurrentMessageLimit.HasValue)
+                partitionCount = Math.Min(partitionCount, endpointConfigurator.ConcurrentMessageLimit.Value);
+
+            var partitioner = endpointConfigurator.CreatePartitioner(partitionCount);
+
+            endpointConfigurator.UsePartitioner<DispatchRequest>(partitioner, x => x.Message.TransactionId);
+            endpointConfigurator.UsePartitioner<RequestNotDispatched>(partitioner, x => x.Message.TransactionId);
+            endpointConfigurator.UsePartitioner<RequestCompleted>(partitioner, x => x.Message.TransactionId);
+
+            endpointConfigurator.UsePartitioner<DispatchResponse>(partitioner, x => x.Message.TransactionId);
+            endpointConfigurator.UsePartitioner<ResponseCompleted>(partitioner, x => x.Message.TransactionId);
 
             endpointConfigurator.UseMessageRetry(r => r.Intervals(10, 50, 100, 500));
             endpointConfigurator.UseInMemoryOutbox();

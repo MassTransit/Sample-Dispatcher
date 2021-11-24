@@ -9,26 +9,34 @@ namespace Sample.Components.Consumers.FirstNational
     public class FirstNationalRequestConsumer :
         IConsumer<DispatchRequest>
     {
+        readonly Uri _responseAddress;
+
+        public FirstNationalRequestConsumer(IEndpointNameFormatter formatter)
+        {
+            _responseAddress = new Uri($"exchange:{formatter.Consumer<FirstNationalResponseConsumer>()}");
+        }
+
         public async Task Consume(ConsumeContext<DispatchRequest> context)
         {
-            var completedTimestamp = DateTime.UtcNow;
+            var timestamp = DateTime.UtcNow;
 
-            await Task.WhenAll(
-                context.RespondAsync(new DispatchRequestCompleted
-                {
-                    TransactionId = context.Message.TransactionId,
-                    RoutingKey = context.Message.RoutingKey,
-                    Body = $"First National: {context.Message.Body}",
-                    CompletedTimestamp = completedTimestamp
-                }),
-                context.Publish(new RequestCompleted
-                {
-                    TransactionId = context.Message.TransactionId,
-                    RoutingKey = context.Message.RoutingKey,
-                    ReceiveTimestamp = context.Message.ReceiveTimestamp,
-                    RequestMessageId = context.MessageId,
-                    CompletedTimestamp = completedTimestamp,
-                }));
+            await context.RespondAsync(new DispatchRequestCompleted
+            {
+                TransactionId = context.Message.TransactionId,
+                RoutingKey = context.Message.RoutingKey,
+                Body = $"First National Request: {context.Message.Body}",
+                CompletedTimestamp = timestamp
+            });
+
+            await context.Publish(new RequestCompleted
+            {
+                TransactionId = context.Message.TransactionId,
+                RoutingKey = context.Message.RoutingKey,
+                ReceiveTimestamp = context.Message.RequestTimestamp,
+                RequestMessageId = context.MessageId,
+                CompletedTimestamp = timestamp,
+                ResponseAddress = _responseAddress
+            });
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace Sample.Api.Controllers
+namespace Sample.Api.Controllers
 {
     using System;
     using System.Threading.Tasks;
@@ -10,28 +10,27 @@
 
     [ApiController]
     [Route("[controller]")]
-    public class DispatchRequestController :
+    public class DispatchResponseController :
         ControllerBase
     {
-        readonly IRequestClient<DispatchRequest> _client;
+        readonly IRequestClient<DispatchResponse> _client;
 
-        public DispatchRequestController(IRequestClient<DispatchRequest> client)
+        public DispatchResponseController(IRequestClient<DispatchResponse> client)
         {
             _client = client;
         }
 
         [HttpPost]
-        public async Task<IActionResult> Submit([FromBody] DispatchRequestModel model)
+        public async Task<IActionResult> Submit([FromBody] DispatchResponseModel model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            Response<DispatchRequestCompleted> response = await _client.GetResponse<DispatchRequestCompleted>(new DispatchRequest
+            Response<DispatchResponseCompleted> response = await _client.GetResponse<DispatchResponseCompleted>(new DispatchResponse
             {
                 TransactionId = model.TransactionId,
-                RoutingKey = model.RoutingKey,
                 Body = model.Body,
-                RequestTimestamp = DateTime.UtcNow
+                ResponseTimestamp = DateTime.UtcNow
             });
 
             return Ok(response.Message);

@@ -22,6 +22,7 @@ namespace Sample.Data.Maps
             entity.Property(x => x.Deadline);
 
             entity.Property(x => x.RequestCompleted);
+            entity.Property(x => x.ResponseAddress).HasMaxLength(128);
         }
     }
 }

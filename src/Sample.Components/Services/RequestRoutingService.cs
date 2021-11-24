@@ -3,7 +3,6 @@ namespace Sample.Components.Services
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using Contracts;
 
 
     public class RequestRoutingService :
@@ -16,9 +15,9 @@ namespace Sample.Components.Services
             _candidates = candidates.ToList();
         }
 
-        public async Task<RouteResult> RouteRequest(DispatchRequest request)
+        public async Task<RouteResult> RouteRequest(string? routingKey)
         {
-            var criteria = new RequestRoutingCriteria(request.RoutingKey);
+            var criteria = new RequestRoutingCriteria { RoutingKey = routingKey };
 
             List<RouteResult> routeResults = (await Task.WhenAll(_candidates.Select(candidate => candidate.IsValidCandidate(criteria))))
                 .Where(x => x != null)

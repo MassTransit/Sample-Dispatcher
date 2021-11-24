@@ -40,6 +40,7 @@ namespace Sample.Api
             services.AddMassTransit(x =>
             {
                 x.AddRequestClient<DispatchRequest>();
+                x.AddRequestClient<DispatchResponse>();
 
                 x.UsingRabbitMq((context, cfg) =>
                 {

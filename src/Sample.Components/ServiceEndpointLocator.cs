@@ -17,9 +17,11 @@ namespace Sample.Components
 
             TransactionStateEndpointAddress = new Uri($"exchange:{_formatter.Saga<TransactionState>()}");
             DispatchRequestEndpointAddress = new Uri($"exchange:{_formatter.Consumer<DispatchRequestConsumer>()}");
+            DispatchResponseEndpointAddress = new Uri($"exchange:{_formatter.Saga<TransactionState>()}");
         }
 
         public Uri TransactionStateEndpointAddress { get; }
         public Uri DispatchRequestEndpointAddress { get; }
+        public Uri DispatchResponseEndpointAddress { get; }
     }
 }

@@ -28,7 +28,8 @@ namespace Sample.Components.Consumers
                 return;
             }
 
-            var routeResult = await _routingService.RouteRequest(context.Message);
+            DispatchRequest request = context.Message;
+            var routeResult = await _routingService.RouteRequest(request.RoutingKey);
 
             if (routeResult.Disposition is RouteDisposition.Unhandled or RouteDisposition.Ambiguous)
             {
@@ -50,7 +51,7 @@ namespace Sample.Components.Consumers
                     RequestMessageId = context.MessageId,
                     TransactionId = context.Message.TransactionId,
                     RoutingKey = context.Message.RoutingKey,
-                    ReceiveTimestamp = context.Message.ReceiveTimestamp,
+                    ReceiveTimestamp = context.Message.RequestTimestamp,
                     Deadline = context.ExpirationTime
                 });
 

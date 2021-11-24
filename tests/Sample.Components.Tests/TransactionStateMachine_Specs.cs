@@ -25,14 +25,14 @@ namespace Sample.Components.Tests
                 await endpoint.Send(new DispatchRequest
                 {
                     TransactionId = transactionId,
-                    ReceiveTimestamp = receiveTimestamp,
+                    RequestTimestamp = receiveTimestamp,
                     RoutingKey = "ABC"
                 }, s => s.TimeToLive = TimeSpan.FromSeconds(5));
 
-                var consumed = await TestHarness.Consumed.Any<DispatchRequest>(x => x.Context.Message.TransactionId == transactionId);
-                Assert.IsTrue(consumed, "DispatchInboundRequest not consumed");
+                Assert.IsTrue(await TestHarness.Consumed.Any<DispatchRequest>(x => x.Context.Message.TransactionId == transactionId),
+                    "DispatchInboundRequest not consumed");
 
-                IList<Guid> correlationIds = await SagaHarness.Exists(state => state.TransactionId == transactionId, Machine.RequestDispatching);
+                IList<Guid> correlationIds = await SagaHarness.Exists(state => state.TransactionId == transactionId, Machine.RequestInFlight);
                 Assert.That(correlationIds, Is.Not.Null.Or.Empty);
 
                 await TestHarness.InactivityTask;

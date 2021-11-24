@@ -7,6 +7,7 @@ namespace Sample.Service
     using Components.Services;
     using Data;
     using MassTransit;
+    using MassTransit.Policies;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
@@ -42,11 +43,14 @@ namespace Sample.Service
 
         static async Task CreateDatabase(Microsoft.Extensions.Hosting.IHost host)
         {
-            using var scope = host.Services.CreateScope();
+            await Retry.Exponential(10, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(5)).Retry(async () =>
+            {
+                using var scope = host.Services.CreateScope();
 
-            var context = scope.ServiceProvider.GetRequiredService<SampleDbContext>();
+                var context = scope.ServiceProvider.GetRequiredService<SampleDbContext>();
 
-            await context.Database.EnsureCreatedAsync();
+                await context.Database.EnsureCreatedAsync();
+            });
         }
 
         static IHostBuilder CreateHostBuilder(string[] args)

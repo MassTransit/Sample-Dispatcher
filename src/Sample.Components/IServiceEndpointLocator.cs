@@ -8,5 +8,6 @@ namespace Sample.Components
         public Uri TransactionStateEndpointAddress { get; }
 
         Uri DispatchRequestEndpointAddress { get; }
+        Uri DispatchResponseEndpointAddress { get; }
     }
 }

@@ -13,22 +13,22 @@ namespace Sample.Components.Consumers.TransGlobal
         {
             var completedTimestamp = DateTime.UtcNow;
 
-            await Task.WhenAll(
-                context.RespondAsync(new DispatchRequestCompleted
-                {
-                    TransactionId = context.Message.TransactionId,
-                    RoutingKey = context.Message.RoutingKey,
-                    Body = $"First National: {context.Message.Body}",
-                    CompletedTimestamp = completedTimestamp
-                }),
-                context.Publish(new RequestCompleted
-                {
-                    TransactionId = context.Message.TransactionId,
-                    RoutingKey = context.Message.RoutingKey,
-                    ReceiveTimestamp = context.Message.ReceiveTimestamp,
-                    RequestMessageId = context.MessageId,
-                    CompletedTimestamp = completedTimestamp,
-                }));
+            await context.RespondAsync(new DispatchRequestCompleted
+            {
+                TransactionId = context.Message.TransactionId,
+                RoutingKey = context.Message.RoutingKey,
+                Body = $"First National: {context.Message.Body}",
+                CompletedTimestamp = completedTimestamp
+            });
+
+            await context.Publish(new RequestCompleted
+            {
+                TransactionId = context.Message.TransactionId,
+                RoutingKey = context.Message.RoutingKey,
+                ReceiveTimestamp = context.Message.RequestTimestamp,
+                RequestMessageId = context.MessageId,
+                CompletedTimestamp = completedTimestamp,
+            });
         }
     }
 }

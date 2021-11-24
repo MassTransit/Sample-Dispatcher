@@ -1,12 +1,7 @@
 namespace Sample.Components.Services
 {
-    public readonly struct RequestRoutingCriteria
+    public record RequestRoutingCriteria
     {
-        public readonly string RoutingKey;
-
-        public RequestRoutingCriteria(string routingKey)
-        {
-            RoutingKey = routingKey;
-        }
+        public string? RoutingKey { get; init; }
     }
 }

@@ -1,6 +1,7 @@
 namespace Sample.Components.Tests
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using Consumers.FirstNational;
     using Contracts;
@@ -11,11 +12,11 @@ namespace Sample.Components.Tests
     using Services;
 
 
-    public class Routing_a_dispatch_request :
+    public class Routing_a_dispatch_request_and_response :
         TransactionStateMachineTestFixture
     {
         [Test]
-        public async Task Should_dispatch_to_the_consumer()
+        public async Task Should_match_the_request_and_response()
         {
             var transactionId = NewId.NextGuid().ToString("N");
             var receiveTimestamp = DateTime.UtcNow;
@@ -25,39 +26,28 @@ namespace Sample.Components.Tests
             IRequestClient<DispatchRequest> requestClient =
                 TestHarness.Bus.CreateRequestClient<DispatchRequest>(locator.DispatchRequestEndpointAddress, RequestTimeout.After(s: 5));
 
-            Response<DispatchRequestCompleted> response = await requestClient.GetResponse<DispatchRequestCompleted>(new DispatchRequest
+            await requestClient.GetResponse<DispatchRequestCompleted>(new DispatchRequest
             {
                 TransactionId = transactionId,
                 RequestTimestamp = receiveTimestamp,
                 RoutingKey = "FIRSTNATL"
             });
 
-            var published = await TestHarness.Published.Any<RequestCompleted>(x => x.Context.Message.TransactionId == transactionId);
-            Assert.IsTrue(published);
+            Assert.IsTrue(await TestHarness.Published.Any<RequestCompleted>(x => x.Context.Message.TransactionId == transactionId));
 
-            await TestHarness.InactivityTask;
-        }
+            IList<Guid> correlationIds = await SagaHarness.Exists(state => state.TransactionId == transactionId, Machine.RequestComplete);
+            Assert.That(correlationIds, Is.Not.Null.Or.Empty);
 
-        [Test]
-        public async Task Should_not_dispatch_an_unsupported_request()
-        {
-            var transactionId = NewId.NextGuid().ToString("N");
-            var receiveTimestamp = DateTime.UtcNow;
+            IRequestClient<DispatchResponse> responseClient =
+                TestHarness.Bus.CreateRequestClient<DispatchResponse>(locator.DispatchResponseEndpointAddress, RequestTimeout.After(s: 5));
 
-            var locator = Provider.GetRequiredService<IServiceEndpointLocator>();
-
-            IRequestClient<DispatchRequest> requestClient =
-                TestHarness.Bus.CreateRequestClient<DispatchRequest>(locator.DispatchRequestEndpointAddress, RequestTimeout.After(s: 5));
-
-            Response<DispatchRequestCompleted> response = await requestClient.GetResponse<DispatchRequestCompleted>(new DispatchRequest
+            await responseClient.GetResponse<DispatchResponseCompleted>(new DispatchResponse
             {
                 TransactionId = transactionId,
-                RequestTimestamp = receiveTimestamp,
-                RoutingKey = "TACOTUESDAY"
+                ResponseTimestamp = DateTime.UtcNow,
             });
 
-            var published = await TestHarness.Published.Any<RequestNotDispatched>(x => x.Context.Message.TransactionId == transactionId);
-            Assert.IsTrue(published);
+            Assert.IsTrue(await TestHarness.Published.Any<ResponseCompleted>(x => x.Context.Message.TransactionId == transactionId));
 
             await TestHarness.InactivityTask;
         }
@@ -67,6 +57,7 @@ namespace Sample.Components.Tests
             base.ConfigureMassTransit(configurator);
 
             configurator.AddConsumer<FirstNationalRequestConsumer, FirstNationalRequestConsumerDefinition>();
+            configurator.AddConsumer<FirstNationalResponseConsumer, FirstNationalResponseConsumerDefinition>();
         }
 
         protected override void ConfigureServices(IServiceCollection collection)
