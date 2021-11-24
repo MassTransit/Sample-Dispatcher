@@ -7,16 +7,27 @@ namespace Sample.Components.Consumers.FirstNational
 
 
     public class FirstNationalRequestConsumer :
-        IConsumer<DispatchInboundRequest>
+        IConsumer<DispatchRequest>
     {
-        public async Task Consume(ConsumeContext<DispatchInboundRequest> context)
+        public async Task Consume(ConsumeContext<DispatchRequest> context)
         {
+            var completedTimestamp = DateTime.UtcNow;
+
             await context.RespondAsync(new DispatchInboundRequestCompleted
             {
                 TransactionId = context.Message.TransactionId,
                 RoutingKey = context.Message.RoutingKey,
-                Body = context.Message.Body,
-                CompletedTimestamp = DateTime.UtcNow
+                Body = $"First National: {context.Message.Body}",
+                CompletedTimestamp = completedTimestamp
+            });
+
+            await context.Publish(new RequestCompleted
+            {
+                TransactionId = context.Message.TransactionId,
+                RoutingKey = context.Message.RoutingKey,
+                ReceiveTimestamp = context.Message.ReceiveTimestamp,
+                RequestMessageId = context.MessageId,
+                CompletedTimestamp = completedTimestamp,
             });
         }
     }

@@ -12,8 +12,11 @@ namespace Sample.Components.StateMachines
         public string TransactionId { get; set; } = null!;
 
         public DateTime Created { get; set; }
-        public DateTime Received { get; set; }
+
+        public DateTime RequestReceived { get; set; }
         public DateTime? Deadline { get; set; }
+
+        public DateTime? RequestCompleted { get; set; }
 
         public Guid CorrelationId { get; set; }
     }

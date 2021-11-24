@@ -6,6 +6,6 @@ namespace Sample.Components.Services
 
     public interface IRequestRoutingService
     {
-        Task<RouteResult> RouteRequest(DispatchInboundRequest request);
+        Task<RouteResult> RouteRequest(DispatchRequest request);
     }
 }

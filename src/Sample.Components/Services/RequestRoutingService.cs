@@ -16,7 +16,7 @@ namespace Sample.Components.Services
             _candidates = candidates.ToList();
         }
 
-        public async Task<RouteResult> RouteRequest(DispatchInboundRequest request)
+        public async Task<RouteResult> RouteRequest(DispatchRequest request)
         {
             var criteria = new RequestRoutingCriteria(request.RoutingKey);
 

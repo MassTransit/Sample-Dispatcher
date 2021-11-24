@@ -15,25 +15,51 @@ namespace Sample.Components.Tests
         TransactionStateMachineTestFixture
     {
         [Test]
-        public async Task Should_support_the_status_check()
+        public async Task Should_dispatch_to_the_consumer()
         {
             var transactionId = NewId.NextGuid().ToString("N");
             var receiveTimestamp = DateTime.UtcNow;
 
             var locator = Provider.GetRequiredService<IServiceEndpointLocator>();
 
-            IRequestClient<DispatchInboundRequest> requestClient =
-                TestHarness.Bus.CreateRequestClient<DispatchInboundRequest>(locator.DispatchRequestEndpointAddress, RequestTimeout.After(s: 5));
+            IRequestClient<DispatchRequest> requestClient =
+                TestHarness.Bus.CreateRequestClient<DispatchRequest>(locator.DispatchRequestEndpointAddress, RequestTimeout.After(s: 5));
 
-            Response<DispatchInboundRequestCompleted> response = await requestClient.GetResponse<DispatchInboundRequestCompleted>(new DispatchInboundRequest
+            Response<DispatchInboundRequestCompleted> response = await requestClient.GetResponse<DispatchInboundRequestCompleted>(new DispatchRequest
             {
                 TransactionId = transactionId,
                 ReceiveTimestamp = receiveTimestamp,
                 RoutingKey = "FIRSTNATL"
             });
 
-            var consumed = await TestHarness.Consumed.Any<DispatchInboundRequest>(x => x.Context.Message.TransactionId == transactionId);
-            Assert.IsTrue(consumed, "DispatchInboundRequest not consumed");
+            var published = await TestHarness.Published.Any<RequestCompleted>(x => x.Context.Message.TransactionId == transactionId);
+            Assert.IsTrue(published);
+
+            await TestHarness.InactivityTask;
+        }
+
+        [Test]
+        public async Task Should_not_dispatch_an_unsupported_request()
+        {
+            var transactionId = NewId.NextGuid().ToString("N");
+            var receiveTimestamp = DateTime.UtcNow;
+
+            var locator = Provider.GetRequiredService<IServiceEndpointLocator>();
+
+            IRequestClient<DispatchRequest> requestClient =
+                TestHarness.Bus.CreateRequestClient<DispatchRequest>(locator.DispatchRequestEndpointAddress, RequestTimeout.After(s: 5));
+
+            Response<DispatchInboundRequestCompleted> response = await requestClient.GetResponse<DispatchInboundRequestCompleted>(new DispatchRequest
+            {
+                TransactionId = transactionId,
+                ReceiveTimestamp = receiveTimestamp,
+                RoutingKey = "TACOTUESDAY"
+            });
+
+            var published = await TestHarness.Published.Any<RequestNotDispatched>(x => x.Context.Message.TransactionId == transactionId);
+            Assert.IsTrue(published);
+
+            await TestHarness.InactivityTask;
         }
 
         protected override void ConfigureMassTransit(IServiceCollectionBusConfigurator configurator)

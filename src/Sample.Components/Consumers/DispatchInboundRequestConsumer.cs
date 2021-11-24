@@ -8,7 +8,7 @@ namespace Sample.Components.Consumers
 
 
     public class DispatchInboundRequestConsumer :
-        IConsumer<DispatchInboundRequest>
+        IConsumer<DispatchRequest>
     {
         readonly IServiceEndpointLocator _endpointLocator;
         readonly IRequestRoutingService _routingService;
@@ -19,7 +19,7 @@ namespace Sample.Components.Consumers
             _endpointLocator = endpointLocator;
         }
 
-        public async Task Consume(ConsumeContext<DispatchInboundRequest> context)
+        public async Task Consume(ConsumeContext<DispatchRequest> context)
         {
             // When redelivered, push through the state machine to avoid duplicate transactions
             if (context.ReceiveContext.Redelivered)
@@ -41,6 +41,16 @@ namespace Sample.Components.Consumers
                     Body = context.Message.Body,
                     CompletedTimestamp = completedTimestamp
                 });
+
+                await context.Publish(new RequestNotDispatched
+                {
+                    RequestMessageId = context.MessageId,
+                    TransactionId = context.Message.TransactionId,
+                    RoutingKey = context.Message.RoutingKey,
+                    ReceiveTimestamp = context.Message.ReceiveTimestamp,
+                    Deadline = context.ExpirationTime
+                });
+
                 return;
             }
 

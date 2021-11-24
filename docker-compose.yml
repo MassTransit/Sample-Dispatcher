@@ -11,3 +11,26 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+  sample-service:
+    build:
+      context: ./src
+      dockerfile: Dockerfile.service
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+  sample-api:
+    build:
+      context: ./src
+      dockerfile: Dockerfile.api
+    ports:
+      - "5000:80"
+      - "5001:443"      
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development      
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=Passw0rd
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+    volumes:
+      - ~/.aspnet/https:/https/:ro
+#      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+#      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+      

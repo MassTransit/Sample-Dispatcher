@@ -23,6 +23,8 @@ namespace Sample.Components.Consumers.FirstNational
         {
             _options.Configure(endpointConfigurator);
 
+            endpointConfigurator.ConfigureConsumeTopology = false;
+
             endpointConfigurator.UseMessageRetry(r => r.Intervals(10, 50, 100, 500));
             endpointConfigurator.UseInMemoryOutbox();
         }

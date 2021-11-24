@@ -1,0 +1,15 @@
+FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
+WORKDIR /src
+COPY ["Sample.Components/Sample.Components.csproj", "Sample.Components/"]
+COPY ["Sample.Contracts/Sample.Contracts.csproj", "Sample.Contracts/"]
+COPY ["Sample.Data/Sample.Data.csproj", "Sample.Data/"]
+COPY ["Sample.Service/Sample.Service.csproj", "Sample.Service/"]
+RUN dotnet restore "Sample.Service/Sample.Service.csproj"
+
+COPY . .
+RUN dotnet publish -c Release -o /app Sample.Service/Sample.Service.csproj 
+
+FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS publish
+WORKDIR /app
+COPY --from=build /app ./
+ENTRYPOINT ["dotnet", "Sample.Service.dll"]

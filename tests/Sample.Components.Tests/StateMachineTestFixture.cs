@@ -1,5 +1,6 @@
 namespace Sample.Components.Tests
 {
+    using System;
     using System.Threading.Tasks;
     using Automatonymous;
     using Internals;
@@ -57,6 +58,7 @@ namespace Sample.Components.Tests
             ConfigureLogging();
 
             TestHarness = Provider.GetRequiredService<InMemoryTestHarness>();
+            TestHarness.TestInactivityTimeout = TimeSpan.FromSeconds(0.2);
             TestHarness.OnConfigureInMemoryBus += configurator =>
             {
                 configurator.UseDelayedMessageScheduler();

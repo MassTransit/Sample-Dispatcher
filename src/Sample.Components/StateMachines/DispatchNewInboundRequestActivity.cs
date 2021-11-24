@@ -8,8 +8,11 @@ namespace Sample.Components.StateMachines
     using MassTransit;
 
 
+    /// <summary>
+    /// Forwards the command to the consumer
+    /// </summary>
     public class DispatchNewInboundRequestActivity :
-        Activity<TransactionState, DispatchInboundRequest>
+        Activity<TransactionState, DispatchRequest>
     {
         readonly IServiceEndpointLocator _locator;
 
@@ -28,17 +31,17 @@ namespace Sample.Components.StateMachines
             visitor.Visit(this);
         }
 
-        public async Task Execute(BehaviorContext<TransactionState, DispatchInboundRequest> context, Behavior<TransactionState, DispatchInboundRequest> next)
+        public async Task Execute(BehaviorContext<TransactionState, DispatchRequest> context, Behavior<TransactionState, DispatchRequest> next)
         {
-            var consumeContext = context.GetPayload<ConsumeContext<DispatchInboundRequest>>();
+            var consumeContext = context.GetPayload<ConsumeContext<DispatchRequest>>();
 
             await consumeContext.Forward(_locator.DispatchRequestEndpointAddress);
 
             await next.Execute(context);
         }
 
-        public Task Faulted<TException>(BehaviorExceptionContext<TransactionState, DispatchInboundRequest, TException> context,
-            Behavior<TransactionState, DispatchInboundRequest> next)
+        public Task Faulted<TException>(BehaviorExceptionContext<TransactionState, DispatchRequest, TException> context,
+            Behavior<TransactionState, DispatchRequest> next)
             where TException : Exception
         {
             return next.Faulted(context);

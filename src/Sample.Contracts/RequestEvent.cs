@@ -1,9 +1,11 @@
-﻿namespace Sample.Contracts
+namespace Sample.Contracts
 {
     using System;
+    using MassTransit.Topology;
 
 
-    public record DispatchInboundRequest
+    [ExcludeFromTopology]
+    public record RequestEvent
     {
         /// <summary>
         /// Unique transactionId, to identify this request and match up to subsequent response
@@ -16,13 +18,15 @@
         public string RoutingKey { get; init; }
 
         /// <summary>
-        /// The request body
-        /// </summary>
-        public string Body { get; init; }
-
-        /// <summary>
         /// Timestamp, in UTC, when the request was received
         /// </summary>
         public DateTime ReceiveTimestamp { get; init; }
+
+        /// <summary>
+        /// The incoming request messageId
+        /// </summary>
+        public Guid? RequestMessageId { get; set; }
+
+        public DateTime? Deadline { get; set; }
     }
 }
