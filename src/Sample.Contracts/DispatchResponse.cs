@@ -16,6 +16,11 @@ namespace Sample.Contracts
         public string? Body { get; init; }
 
         /// <summary>
+        /// Only present when request was availabe
+        /// </summary>
+        public string? RequestBody { get; init; }
+
+        /// <summary>
         /// Timestamp, in UTC, when the response was received
         /// </summary>
         public DateTime? ResponseTimestamp { get; init; }

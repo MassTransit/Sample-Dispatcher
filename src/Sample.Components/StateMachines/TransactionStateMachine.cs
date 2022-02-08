@@ -89,14 +89,28 @@
 
             During(RequestComplete,
                 When(DispatchResponse)
+                    .Then(context => context.Instance.ResponseBody = context.Data.Body)
                     .IfElse(context => context.Instance.ResponseAddress != null,
-                        dispatchResponse => dispatchResponse.Activity(x => x.OfType<DispatchResponseActivity>()).TransitionTo(ResponseInFlight),
-                        complete => complete.TransitionTo(ResponseComplete))
+                        dispatch => dispatch
+                            .Activity(x => x.OfType<DispatchResponseActivity>())
+                            .TransitionTo(ResponseInFlight),
+                        complete => complete
+                            .Respond(context => new DispatchResponseCompleted
+                            {
+                                TransactionId = context.Data.TransactionId,
+                                Body = context.Data.Body,
+                                CompletedTimestamp = DateTime.UtcNow
+                            })
+                            .TransitionTo(ResponseComplete))
             );
 
             During(ResponseInFlight,
                 When(ResponseCompleted)
                     .TransitionTo(ResponseComplete)
+            );
+
+            During(ResponseComplete,
+                Ignore(ResponseCompleted)
             );
 
             SetCompletedWhenFinalized();
@@ -135,6 +149,7 @@
                 context.Instance.Created = DateTime.UtcNow;
                 context.Instance.RequestReceived = context.Data.RequestTimestamp;
                 context.Instance.Deadline = consumeContext.ExpirationTime;
+                context.Instance.RequestBody = context.Data.Body;
             });
         }
 
@@ -147,6 +162,7 @@
                 context.Instance.Created = DateTime.UtcNow;
                 context.Instance.RequestReceived = context.Data.ReceiveTimestamp;
                 context.Instance.Deadline = context.Data.Deadline;
+                context.Instance.RequestBody = context.Data.Body;
             });
         }
     }

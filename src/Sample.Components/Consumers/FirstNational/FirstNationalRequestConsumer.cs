@@ -20,6 +20,8 @@ namespace Sample.Components.Consumers.FirstNational
         {
             var timestamp = DateTime.UtcNow;
 
+            // HttpClient goes here
+
             await context.RespondAsync(new DispatchRequestCompleted
             {
                 TransactionId = context.Message.TransactionId,
@@ -32,6 +34,7 @@ namespace Sample.Components.Consumers.FirstNational
             {
                 TransactionId = context.Message.TransactionId,
                 RoutingKey = context.Message.RoutingKey,
+                Body = context.Message.Body,
                 ReceiveTimestamp = context.Message.RequestTimestamp,
                 RequestMessageId = context.MessageId,
                 CompletedTimestamp = timestamp,

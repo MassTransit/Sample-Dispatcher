@@ -19,6 +19,9 @@ namespace Sample.Components.StateMachines
         public DateTime? RequestCompleted { get; set; }
         public Uri? ResponseAddress { get; set; }
 
+        public string? RequestBody { get; set; }
+        public string? ResponseBody { get; set; }
+
         public Guid CorrelationId { get; set; }
     }
 }

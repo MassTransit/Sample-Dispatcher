@@ -16,7 +16,7 @@ namespace Sample.Components.Consumers.FirstNational
             await context.RespondAsync(new DispatchResponseCompleted
             {
                 TransactionId = context.Message.TransactionId,
-                Body = $"First National Response: {context.Message.Body}",
+                Body = $"First National Response: {context.Message.Body}, Original Request: {context.Message.RequestBody}",
                 CompletedTimestamp = timestamp
             });
 

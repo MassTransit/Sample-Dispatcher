@@ -23,6 +23,9 @@ namespace Sample.Data.Maps
 
             entity.Property(x => x.RequestCompleted);
             entity.Property(x => x.ResponseAddress).HasMaxLength(128);
+
+            entity.Property(x => x.RequestBody);
+            entity.Property(x => x.ResponseBody);
         }
     }
 }

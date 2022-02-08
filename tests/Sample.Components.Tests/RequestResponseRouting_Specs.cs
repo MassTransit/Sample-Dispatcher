@@ -50,6 +50,8 @@ namespace Sample.Components.Tests
             Assert.IsTrue(await TestHarness.Published.Any<ResponseCompleted>(x => x.Context.Message.TransactionId == transactionId));
 
             await TestHarness.InactivityTask;
+
+            await TestHarness.OutputTimeline(TestContext.Out);
         }
 
         protected override void ConfigureMassTransit(IServiceCollectionBusConfigurator configurator)

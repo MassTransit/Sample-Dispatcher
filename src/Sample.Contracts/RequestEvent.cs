@@ -17,6 +17,8 @@ namespace Sample.Contracts
         /// </summary>
         public string? RoutingKey { get; init; }
 
+        public string? Body { get; init; }
+
         /// <summary>
         /// Timestamp, in UTC, when the request was received
         /// </summary>
