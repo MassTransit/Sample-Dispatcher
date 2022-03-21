@@ -5,6 +5,7 @@ namespace Sample.Api
     using Microsoft.Extensions.Hosting;
     using Serilog;
     using Serilog.Events;
+    using Shared;
 
 
     public class Program
@@ -18,6 +19,8 @@ namespace Sample.Api
                 .Enrich.FromLogContext()
                 .WriteTo.Console()
                 .CreateLogger();
+
+            using var telemetry = ConfigureOpenTelemetryExtensions.AddOpenTelemetry("api");
 
             var host = CreateHostBuilder(args).Build();
 

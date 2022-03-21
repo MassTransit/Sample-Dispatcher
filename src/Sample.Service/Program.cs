@@ -13,6 +13,7 @@ namespace Sample.Service
     using Microsoft.Extensions.Hosting;
     using Serilog;
     using Serilog.Events;
+    using Shared;
 
 
     public class Program
@@ -34,6 +35,8 @@ namespace Sample.Service
                 .WriteTo.Console()
                 .CreateLogger();
 
+            using var telemetry = ConfigureOpenTelemetryExtensions.AddOpenTelemetry("service");
+
             var host = CreateHostBuilder(args).Build();
 
             await CreateDatabase(host);
@@ -41,7 +44,7 @@ namespace Sample.Service
             await host.RunAsync();
         }
 
-        static async Task CreateDatabase(Microsoft.Extensions.Hosting.IHost host)
+        static async Task CreateDatabase(IHost host)
         {
             await Retry.Exponential(10, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(5)).Retry(async () =>
             {
@@ -79,10 +82,6 @@ namespace Sample.Service
 
                     services.AddMassTransit(x =>
                     {
-                        x.AddDelayedMessageScheduler();
-
-                        x.SetKebabCaseEndpointNameFormatter();
-
                         x.SetEntityFrameworkSagaRepositoryProvider(r =>
                         {
                             r.ExistingDbContext<SampleDbContext>();
@@ -96,15 +95,7 @@ namespace Sample.Service
                         x.AddSagas(assembly);
                         x.AddActivities(assembly);
 
-                        x.UsingRabbitMq((context, cfg) =>
-                        {
-                            if (IsRunningInContainer)
-                                cfg.Host("rabbitmq");
-
-                            cfg.UseDelayedMessageScheduler();
-
-                            cfg.ConfigureEndpoints(context);
-                        });
+                        x.ConfigureMassTransit();
                     });
 
                     services.AddOptions<MassTransitHostOptions>().Configure(options =>

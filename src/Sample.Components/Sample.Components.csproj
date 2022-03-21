@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MassTransit" Version="8.0.0"/>
     <PackageReference Include="Microsoft.Extensions.Options" Version="5.0.0"/>
   </ItemGroup>
 

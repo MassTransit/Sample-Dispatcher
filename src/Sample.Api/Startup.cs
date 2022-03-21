@@ -1,9 +1,7 @@
 namespace Sample.Api
 {
-    using System;
     using System.Linq;
     using System.Threading.Tasks;
-    using Contracts;
     using MassTransit;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -16,19 +14,15 @@ namespace Sample.Api
     using Microsoft.OpenApi.Models;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
+    using Shared;
 
 
     public class Startup
     {
-        static bool? _isRunningInContainer;
-
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
         }
-
-        static bool IsRunningInContainer =>
-            _isRunningInContainer ??= bool.TryParse(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER"), out var inContainer) && inContainer;
 
         public IConfiguration Configuration { get; }
 
@@ -39,19 +33,7 @@ namespace Sample.Api
 
             services.AddMassTransit(x =>
             {
-                x.AddRequestClient<DispatchRequest>();
-                x.AddRequestClient<DispatchResponse>();
-
-                x.UsingRabbitMq((context, cfg) =>
-                {
-                    cfg.AutoStart = true;
-
-                    if (IsRunningInContainer)
-                        cfg.Host("rabbitmq");
-
-
-                    cfg.ConfigureEndpoints(context);
-                });
+                x.ConfigureMassTransit(cfg => cfg.AutoStart = true);
             });
             services.AddOptions<MassTransitHostOptions>().Configure(options =>
             {
