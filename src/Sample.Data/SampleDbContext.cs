@@ -3,7 +3,6 @@ namespace Sample.Data
     using System.Collections.Generic;
     using Maps;
     using MassTransit.EntityFrameworkCoreIntegration;
-    using MassTransit.EntityFrameworkCoreIntegration.Mappings;
     using Microsoft.EntityFrameworkCore;
 
 

@@ -3,14 +3,12 @@ namespace Sample.Components.StateMachines
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using Automatonymous;
     using Contracts;
-    using GreenPipes;
     using MassTransit;
 
 
     public class DispatchResponseActivity :
-        Activity<TransactionState, DispatchResponse>
+        IStateMachineActivity<TransactionState, DispatchResponse>
     {
         public void Probe(ProbeContext context)
         {
@@ -22,46 +20,42 @@ namespace Sample.Components.StateMachines
             visitor.Visit(this);
         }
 
-        public async Task Execute(BehaviorContext<TransactionState, DispatchResponse> context, Behavior<TransactionState, DispatchResponse> next)
+        public async Task Execute(BehaviorContext<TransactionState, DispatchResponse> context, IBehavior<TransactionState, DispatchResponse> next)
         {
-            var consumeContext = context.GetPayload<ConsumeContext<DispatchResponse>>();
-
-            if (context.Instance.ResponseAddress == null)
+            if (context.Saga.ResponseAddress == null)
                 throw new InvalidOperationException("The ResponseAddress was null");
 
-            var endpoint = await context.GetSendEndpoint(context.Instance.ResponseAddress);
+            var endpoint = await context.GetSendEndpoint(context.Saga.ResponseAddress);
 
             await endpoint.Send(new DispatchResponse
             {
-                TransactionId = context.Data.TransactionId,
-                Body = context.Data.Body,
-                RequestBody = context.Instance.RequestBody,
-                ResponseTimestamp = context.Data.ResponseTimestamp
+                TransactionId = context.Message.TransactionId,
+                Body = context.Message.Body,
+                RequestBody = context.Saga.RequestBody,
+                ResponseTimestamp = context.Message.ResponseTimestamp
             }, sc =>
             {
-                sc.MessageId = consumeContext.MessageId;
-                sc.RequestId = consumeContext.RequestId;
-                sc.ConversationId = consumeContext.ConversationId;
-                sc.CorrelationId = consumeContext.CorrelationId;
-                sc.InitiatorId = consumeContext.InitiatorId;
-                sc.SourceAddress = consumeContext.SourceAddress;
-                sc.ResponseAddress = consumeContext.ResponseAddress;
-                sc.FaultAddress = consumeContext.FaultAddress;
+                sc.MessageId = context.MessageId;
+                sc.RequestId = context.RequestId;
+                sc.ConversationId = context.ConversationId;
+                sc.CorrelationId = context.CorrelationId;
+                sc.InitiatorId = context.InitiatorId;
+                sc.SourceAddress = context.SourceAddress;
+                sc.ResponseAddress = context.ResponseAddress;
+                sc.FaultAddress = context.FaultAddress;
 
-                if (consumeContext.ExpirationTime.HasValue)
-                    sc.TimeToLive = consumeContext.ExpirationTime.Value.ToUniversalTime() - DateTime.UtcNow;
+                if (context.ExpirationTime.HasValue)
+                    sc.TimeToLive = context.ExpirationTime.Value.ToUniversalTime() - DateTime.UtcNow;
 
-                foreach (KeyValuePair<string, object> header in consumeContext.Headers.GetAll())
+                foreach (KeyValuePair<string, object> header in context.Headers.GetAll())
                     sc.Headers.Set(header.Key, header.Value);
             });
-
-            await consumeContext.Forward(context.Instance.ResponseAddress);
 
             await next.Execute(context);
         }
 
         public Task Faulted<TException>(BehaviorExceptionContext<TransactionState, DispatchResponse, TException> context,
-            Behavior<TransactionState, DispatchResponse> next)
+            IBehavior<TransactionState, DispatchResponse> next)
             where TException : Exception
         {
             return next.Faulted(context);

@@ -16,7 +16,7 @@ namespace Sample.Contracts
         public string? Body { get; init; }
 
         /// <summary>
-        /// Only present when request was availabe
+        /// Only present when request was available
         /// </summary>
         public string? RequestBody { get; init; }
 

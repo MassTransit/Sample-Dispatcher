@@ -2,9 +2,8 @@ namespace Sample.Components.Configuration
 {
     using System;
     using System.Text;
-    using GreenPipes.Partitioning;
-    using GreenPipes.Specifications;
     using MassTransit;
+    using MassTransit.Configuration;
 
 
     public static class ReceiveEndpointOptionsExtensions

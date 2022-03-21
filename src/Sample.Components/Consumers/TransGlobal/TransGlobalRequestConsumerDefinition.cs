@@ -1,10 +1,7 @@
 namespace Sample.Components.Consumers.TransGlobal
 {
     using Configuration;
-    using GreenPipes;
     using MassTransit;
-    using MassTransit.ConsumeConfigurators;
-    using MassTransit.Definition;
     using Microsoft.Extensions.Options;
 
 

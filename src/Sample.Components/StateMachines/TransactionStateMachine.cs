@@ -1,10 +1,7 @@
 ﻿namespace Sample.Components.StateMachines
 {
     using System;
-    using Automatonymous;
-    using Automatonymous.Binders;
     using Contracts;
-    using GreenPipes;
     using MassTransit;
     using Microsoft.Extensions.Logging;
 
@@ -60,7 +57,7 @@
                 // it directly to the request dispatch consumer
                 When(DispatchRequest)
                     .InitializeInstance()
-                    .Then(x => logger.LogDebug("Dispatching {TransactionId}, deadline {Deadline}", x.Instance.TransactionId, x.Instance.Deadline))
+                    .Then(x => logger.LogDebug("Dispatching {TransactionId}, deadline {Deadline}", x.Saga.TransactionId, x.Saga.Deadline))
                     .Activity(x => x.OfType<DispatchRequestActivity>())
                     .TransitionTo(RequestInFlight)
             );
@@ -70,8 +67,8 @@
                     .InitializeInstance()
                     .Then(context =>
                     {
-                        context.Instance.RequestCompleted = context.Data.CompletedTimestamp;
-                        context.Instance.ResponseAddress = context.Data.ResponseAddress;
+                        context.Saga.RequestCompleted = context.Message.CompletedTimestamp;
+                        context.Saga.ResponseAddress = context.Message.ResponseAddress;
                     })
                     .TransitionTo(RequestComplete)
             );
@@ -89,16 +86,16 @@
 
             During(RequestComplete,
                 When(DispatchResponse)
-                    .Then(context => context.Instance.ResponseBody = context.Data.Body)
-                    .IfElse(context => context.Instance.ResponseAddress != null,
+                    .Then(context => context.Saga.ResponseBody = context.Message.Body)
+                    .IfElse(context => context.Saga.ResponseAddress != null,
                         dispatch => dispatch
                             .Activity(x => x.OfType<DispatchResponseActivity>())
                             .TransitionTo(ResponseInFlight),
                         complete => complete
                             .Respond(context => new DispatchResponseCompleted
                             {
-                                TransactionId = context.Data.TransactionId,
-                                Body = context.Data.Body,
+                                TransactionId = context.Message.TransactionId,
+                                Body = context.Message.Body,
                                 CompletedTimestamp = DateTime.UtcNow
                             })
                             .TransitionTo(ResponseComplete))
@@ -145,11 +142,11 @@
             {
                 var consumeContext = context.GetPayload<ConsumeContext>();
 
-                context.Instance.TransactionId = context.Data.TransactionId;
-                context.Instance.Created = DateTime.UtcNow;
-                context.Instance.RequestReceived = context.Data.RequestTimestamp;
-                context.Instance.Deadline = consumeContext.ExpirationTime;
-                context.Instance.RequestBody = context.Data.Body;
+                context.Saga.TransactionId = context.Message.TransactionId;
+                context.Saga.Created = DateTime.UtcNow;
+                context.Saga.RequestReceived = context.Message.RequestTimestamp;
+                context.Saga.Deadline = consumeContext.ExpirationTime;
+                context.Saga.RequestBody = context.Message.Body;
             });
         }
 
@@ -158,11 +155,11 @@
         {
             return binder.Then(context =>
             {
-                context.Instance.TransactionId = context.Data.TransactionId;
-                context.Instance.Created = DateTime.UtcNow;
-                context.Instance.RequestReceived = context.Data.ReceiveTimestamp;
-                context.Instance.Deadline = context.Data.Deadline;
-                context.Instance.RequestBody = context.Data.Body;
+                context.Saga.TransactionId = context.Message.TransactionId;
+                context.Saga.Created = DateTime.UtcNow;
+                context.Saga.RequestReceived = context.Message.ReceiveTimestamp;
+                context.Saga.Deadline = context.Message.Deadline;
+                context.Saga.RequestBody = context.Message.Body;
             });
         }
     }

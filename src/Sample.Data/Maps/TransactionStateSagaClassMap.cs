@@ -1,7 +1,7 @@
 namespace Sample.Data.Maps
 {
     using Components.StateMachines;
-    using MassTransit.EntityFrameworkCoreIntegration.Mappings;
+    using MassTransit;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

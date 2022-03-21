@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MassTransit.EntityFrameworkCore" Version="7.3.1"/>
+    <PackageReference Include="MassTransit.EntityFrameworkCore" Version="8.0.0"/>
   </ItemGroup>
 
   <ItemGroup>

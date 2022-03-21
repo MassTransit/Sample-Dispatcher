@@ -1,7 +1,7 @@
 namespace Sample.Contracts
 {
     using System;
-    using MassTransit.Topology;
+    using MassTransit;
 
 
     [ExcludeFromTopology]

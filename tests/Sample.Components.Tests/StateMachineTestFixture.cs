@@ -2,16 +2,10 @@ namespace Sample.Components.Tests
 {
     using System;
     using System.Threading.Tasks;
-    using Automatonymous;
     using Internals;
     using MassTransit;
-    using MassTransit.Context;
-    using MassTransit.Definition;
-    using MassTransit.ExtensionsDependencyInjectionIntegration;
     using MassTransit.Testing;
     using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.Extensions.DependencyInjection.Extensions;
-    using Microsoft.Extensions.Logging;
     using NUnit.Framework;
     using NUnit.Framework.Internal;
 
@@ -25,8 +19,8 @@ namespace Sample.Components.Tests
         TestOutputLoggerFactory _loggerFactory;
         protected TStateMachine Machine;
         protected ServiceProvider Provider;
-        protected IStateMachineSagaTestHarness<TInstance, TStateMachine> SagaHarness;
-        protected InMemoryTestHarness TestHarness;
+        protected ISagaStateMachineTestHarness<TStateMachine, TInstance> SagaHarness;
+        protected ITestHarness TestHarness;
 
         [OneTimeSetUp]
         public async Task StateMachineTestFixtureOneTimeSetup()
@@ -35,34 +29,31 @@ namespace Sample.Components.Tests
 
             var collection = new ServiceCollection();
 
-            collection.AddSingleton<ILoggerFactory>(_ => _loggerFactory);
-            collection.TryAdd(ServiceDescriptor.Singleton(typeof(ILogger<>), typeof(Logger<>)));
-            collection.AddMassTransitInMemoryTestHarness(cfg =>
+            collection.AddMassTransitTestHarness(x =>
             {
-                cfg.SetKebabCaseEndpointNameFormatter();
+                x.SetKebabCaseEndpointNameFormatter();
 
-                cfg.AddDelayedMessageScheduler();
+                x.AddDelayedMessageScheduler();
 
-                cfg.AddSagaStateMachine<TStateMachine, TInstance, TDefinition>()
+                x.AddSagaStateMachine<TStateMachine, TInstance, TDefinition>()
                     .InMemoryRepository();
 
-                cfg.AddSagaStateMachineTestHarness<TStateMachine, TInstance>();
+                ConfigureMassTransit(x);
 
-                ConfigureMassTransit(cfg);
+                x.UsingInMemory((context, cfg) =>
+                {
+                    cfg.UseDelayedMessageScheduler();
+
+                    cfg.ConfigureEndpoints(context);
+                });
             });
 
             ConfigureServices(collection);
 
             Provider = collection.BuildServiceProvider(true);
 
-            ConfigureLogging();
-
-            TestHarness = Provider.GetRequiredService<InMemoryTestHarness>();
+            TestHarness = Provider.GetTestHarness();
             TestHarness.TestInactivityTimeout = TimeSpan.FromSeconds(0.2);
-            TestHarness.OnConfigureInMemoryBus += configurator =>
-            {
-                configurator.UseDelayedMessageScheduler();
-            };
 
             _fixtureContext = TestExecutionContext.CurrentContext;
 
@@ -70,11 +61,11 @@ namespace Sample.Components.Tests
 
             await TestHarness.Start();
 
-            SagaHarness = Provider.GetRequiredService<IStateMachineSagaTestHarness<TInstance, TStateMachine>>();
-            Machine = Provider.GetRequiredService<TStateMachine>();
+            SagaHarness = TestHarness.GetSagaStateMachineHarness<TStateMachine, TInstance>();
+            Machine = SagaHarness.StateMachine;
         }
 
-        protected virtual void ConfigureMassTransit(IServiceCollectionBusConfigurator configurator)
+        protected virtual void ConfigureMassTransit(IBusRegistrationConfigurator configurator)
         {
         }
 
@@ -85,23 +76,7 @@ namespace Sample.Components.Tests
         [OneTimeTearDown]
         public async Task StateMachineTestFixtureOneTimeTearDown()
         {
-            _loggerFactory.Current = _fixtureContext;
-
-            try
-            {
-                await TestHarness.Stop();
-            }
-            finally
-            {
-                await Provider.DisposeAsync();
-            }
-        }
-
-        void ConfigureLogging()
-        {
-            var loggerFactory = Provider.GetRequiredService<ILoggerFactory>();
-
-            LogContext.ConfigureCurrentLogContext(loggerFactory);
+            await Provider.DisposeAsync();
         }
     }
 }

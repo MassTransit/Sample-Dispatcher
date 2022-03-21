@@ -2,7 +2,6 @@ namespace Sample.Components.Tests
 {
     using Consumers;
     using MassTransit;
-    using MassTransit.ExtensionsDependencyInjectionIntegration;
     using Microsoft.Extensions.DependencyInjection;
     using Services;
     using StateMachines;
@@ -11,7 +10,7 @@ namespace Sample.Components.Tests
     public class TransactionStateMachineTestFixture :
         StateMachineTestFixture<TransactionStateMachine, TransactionState, TransactionStateSagaDefinition>
     {
-        protected override void ConfigureMassTransit(IServiceCollectionBusConfigurator configurator)
+        protected override void ConfigureMassTransit(IBusRegistrationConfigurator configurator)
         {
             base.ConfigureMassTransit(configurator);
 

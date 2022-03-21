@@ -2,7 +2,7 @@ namespace Sample.Components.Tests
 {
     using System.Reflection;
     using Configuration;
-    using MassTransit.Internals.Extensions;
+    using MassTransit.Internals;
     using MassTransit.Util;
     using Microsoft.Extensions.DependencyInjection;
     using Services;

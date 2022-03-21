@@ -7,7 +7,7 @@ namespace Sample.Service
     using Components.Services;
     using Data;
     using MassTransit;
-    using MassTransit.Policies;
+    using MassTransit.RetryPolicies;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
@@ -107,7 +107,10 @@ namespace Sample.Service
                         });
                     });
 
-                    services.AddMassTransitHostedService(true);
+                    services.AddOptions<MassTransitHostOptions>().Configure(options =>
+                    {
+                        options.WaitUntilStarted = true;
+                    });
                 })
                 .UseSerilog();
         }

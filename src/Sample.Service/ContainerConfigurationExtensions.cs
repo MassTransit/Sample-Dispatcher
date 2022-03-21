@@ -3,7 +3,7 @@ namespace Sample.Service
     using System.Reflection;
     using Components.Configuration;
     using Components.Services;
-    using MassTransit.Internals.Extensions;
+    using MassTransit.Internals;
     using MassTransit.Util;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;

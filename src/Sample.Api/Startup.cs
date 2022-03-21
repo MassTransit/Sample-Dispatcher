@@ -53,7 +53,10 @@ namespace Sample.Api
                     cfg.ConfigureEndpoints(context);
                 });
             });
-            services.AddMassTransitHostedService(true);
+            services.AddOptions<MassTransitHostOptions>().Configure(options =>
+            {
+                options.WaitUntilStarted = true;
+            });
 
             services.AddSwaggerGen(c =>
             {

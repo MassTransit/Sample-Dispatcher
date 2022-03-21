@@ -2,9 +2,7 @@ namespace Sample.Components.StateMachines
 {
     using System;
     using System.Threading.Tasks;
-    using Automatonymous;
     using Contracts;
-    using GreenPipes;
     using MassTransit;
 
 
@@ -12,7 +10,7 @@ namespace Sample.Components.StateMachines
     /// Forwards the command to the consumer
     /// </summary>
     public class DispatchRequestActivity :
-        Activity<TransactionState, DispatchRequest>
+        IStateMachineActivity<TransactionState, DispatchRequest>
     {
         readonly IServiceEndpointLocator _locator;
 
@@ -31,7 +29,7 @@ namespace Sample.Components.StateMachines
             visitor.Visit(this);
         }
 
-        public async Task Execute(BehaviorContext<TransactionState, DispatchRequest> context, Behavior<TransactionState, DispatchRequest> next)
+        public async Task Execute(BehaviorContext<TransactionState, DispatchRequest> context, IBehavior<TransactionState, DispatchRequest> next)
         {
             var consumeContext = context.GetPayload<ConsumeContext<DispatchRequest>>();
 
@@ -41,7 +39,7 @@ namespace Sample.Components.StateMachines
         }
 
         public Task Faulted<TException>(BehaviorExceptionContext<TransactionState, DispatchRequest, TException> context,
-            Behavior<TransactionState, DispatchRequest> next)
+            IBehavior<TransactionState, DispatchRequest> next)
             where TException : Exception
         {
             return next.Faulted(context);

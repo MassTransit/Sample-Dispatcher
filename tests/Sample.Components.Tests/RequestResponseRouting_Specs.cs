@@ -6,7 +6,7 @@ namespace Sample.Components.Tests
     using Consumers.FirstNational;
     using Contracts;
     using MassTransit;
-    using MassTransit.ExtensionsDependencyInjectionIntegration;
+    using MassTransit.Testing;
     using Microsoft.Extensions.DependencyInjection;
     using NUnit.Framework;
     using Services;
@@ -54,7 +54,7 @@ namespace Sample.Components.Tests
             await TestHarness.OutputTimeline(TestContext.Out);
         }
 
-        protected override void ConfigureMassTransit(IServiceCollectionBusConfigurator configurator)
+        protected override void ConfigureMassTransit(IBusRegistrationConfigurator configurator)
         {
             base.ConfigureMassTransit(configurator);
 

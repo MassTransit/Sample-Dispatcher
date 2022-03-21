@@ -3,9 +3,7 @@ namespace Sample.Components.StateMachines
     using System;
     using Configuration;
     using Contracts;
-    using GreenPipes;
     using MassTransit;
-    using MassTransit.Definition;
     using Microsoft.Extensions.Options;
 
 
