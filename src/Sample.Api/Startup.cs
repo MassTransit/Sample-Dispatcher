@@ -1,8 +1,12 @@
 namespace Sample.Api
 {
+    using System.Collections.Generic;
     using System.Linq;
+    using System.Text.Json;
+    using System.Text.Json.Nodes;
     using System.Threading.Tasks;
     using MassTransit;
+    using MassTransit.Serialization;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Diagnostics.HealthChecks;
     using Microsoft.AspNetCore.Hosting;
@@ -12,8 +16,6 @@ namespace Sample.Api
     using Microsoft.Extensions.Diagnostics.HealthChecks;
     using Microsoft.Extensions.Hosting;
     using Microsoft.OpenApi.Models;
-    using Newtonsoft.Json;
-    using Newtonsoft.Json.Linq;
     using Shared;
 
 
@@ -39,6 +41,8 @@ namespace Sample.Api
             {
                 options.WaitUntilStarted = true;
             });
+
+            services.Configure<RabbitMqTransportOptions>(Configuration.GetSection("RabbitMqTransport"));
 
             services.AddSwaggerGen(c =>
             {
@@ -81,16 +85,30 @@ namespace Sample.Api
 
         static Task HealthCheckResponseWriter(HttpContext context, HealthReport result)
         {
-            var json = new JObject(
-                new JProperty("status", result.Status.ToString()),
-                new JProperty("results", new JObject(result.Entries.Select(entry => new JProperty(entry.Key, new JObject(
-                    new JProperty("status", entry.Value.Status.ToString()),
-                    new JProperty("description", entry.Value.Description),
-                    new JProperty("data", JObject.FromObject(entry.Value.Data))))))));
-
             context.Response.ContentType = "application/json";
+            return context.Response.WriteAsync(ToJsonString(result));
+        }
 
-            return context.Response.WriteAsync(json.ToString(Formatting.Indented));
+        static string ToJsonString(HealthReport result)
+        {
+            var healthResult = new JsonObject
+            {
+                ["status"] = result.Status.ToString(),
+                ["results"] = new JsonObject(result.Entries.Select(entry => new KeyValuePair<string, JsonNode>(entry.Key,
+                    new JsonObject
+                    {
+                        ["status"] = entry.Value.Status.ToString(),
+                        ["description"] = entry.Value.Description,
+                        ["data"] = JsonSerializer.SerializeToNode(entry.Value.Data, SystemTextJsonMessageSerializer.Options)
+                    }))!)
+            };
+
+            var options = new JsonSerializerOptions
+            {
+                WriteIndented = true,
+            };
+
+            return healthResult.ToJsonString(options);
         }
     }
 }

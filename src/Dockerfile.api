@@ -1,12 +1,12 @@
 FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 WORKDIR /src
-COPY ["Sample.Components/Sample.Components.csproj", "Sample.Components/"]
+COPY ["Sample.Shared/Sample.Shared.csproj", "Sample.Shared/"]
 COPY ["Sample.Contracts/Sample.Contracts.csproj", "Sample.Contracts/"]
 COPY ["Sample.Api/Sample.Api.csproj", "Sample.Api/"]
 RUN dotnet restore "Sample.Api/Sample.Api.csproj"
 
 COPY . .
-RUN dotnet publish -c Release -o /app Sample.Api/Sample.Api.csproj 
+RUN dotnet publish -c Release -o /app Sample.Api/Sample.Api.csproj
 
 FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS publish
 WORKDIR /app

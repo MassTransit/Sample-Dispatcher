@@ -10,7 +10,7 @@ namespace Sample.Contracts
         /// <summary>
         /// Unique transactionId, to identify this request and match up to subsequent response
         /// </summary>
-        public string? TransactionId { get; init; }
+        public string TransactionId { get; init; } = null!;
 
         /// <summary>
         /// The routing key/bin for the request

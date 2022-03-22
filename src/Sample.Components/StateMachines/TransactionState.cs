@@ -9,7 +9,7 @@ namespace Sample.Components.StateMachines
     {
         public int CurrentState { get; set; }
 
-        public string? TransactionId { get; set; }
+        public string TransactionId { get; set; } = null!;
 
         public DateTime Created { get; set; }
 

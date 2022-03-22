@@ -21,6 +21,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample.Data", "src\Sample.D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample.Shared", "src\Sample.Shared\Sample.Shared.csproj", "{61E64358-4787-465A-B1F7-90F15529B643}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docker", "Docker", "{FFD1D55C-32F7-498A-B676-E5AFC6AE5C19}"
+	ProjectSection(SolutionItems) = preProject
+		docker-compose.yml = docker-compose.yml
+		src\Dockerfile.service = src\Dockerfile.service
+		src\Dockerfile.api = src\Dockerfile.api
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

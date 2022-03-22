@@ -9,6 +9,7 @@ namespace Sample.Service
     using MassTransit;
     using MassTransit.RetryPolicies;
     using Microsoft.EntityFrameworkCore;
+    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
     using Serilog;
@@ -18,11 +19,6 @@ namespace Sample.Service
 
     public class Program
     {
-        static bool? _isRunningInContainer;
-
-        static bool IsRunningInContainer =>
-            _isRunningInContainer ??= bool.TryParse(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER"), out var inContainer) && inContainer;
-
         public static async Task Main(string[] args)
         {
             Log.Logger = new LoggerConfiguration()
@@ -59,13 +55,12 @@ namespace Sample.Service
         static IHostBuilder CreateHostBuilder(string[] args)
         {
             return Host.CreateDefaultBuilder(args)
+                .ConfigureHostConfiguration(config => config.AddEnvironmentVariables())
                 .ConfigureServices((hostContext, services) =>
                 {
                     services.AddDbContext<SampleDbContext>(builder =>
                     {
-                        var connectionString = IsRunningInContainer
-                            ? "host=postgres;user id=postgres;password=secret;database=SampleService;"
-                            : "host=localhost;user id=postgres;password=secret;database=SampleService;";
+                        var connectionString = hostContext.Configuration.GetConnectionString("State");
 
                         builder.UseNpgsql(connectionString, m =>
                         {
@@ -79,6 +74,8 @@ namespace Sample.Service
 
                     services.AddRequestRoutingCandidates();
                     services.AddReceiveEndpointOptions(hostContext.Configuration);
+
+                    services.Configure<RabbitMqTransportOptions>(hostContext.Configuration.GetSection("RabbitMqTransport"));
 
                     services.AddMassTransit(x =>
                     {

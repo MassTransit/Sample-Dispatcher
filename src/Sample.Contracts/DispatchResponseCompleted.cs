@@ -5,7 +5,7 @@ namespace Sample.Contracts
 
     public record DispatchResponseCompleted
     {
-        public string? TransactionId { get; init; }
+        public string TransactionId { get; init; } = null!;
 
         public string? Body { get; init; }
 
