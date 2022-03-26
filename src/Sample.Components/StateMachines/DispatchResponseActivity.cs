@@ -1,7 +1,6 @@
 namespace Sample.Components.StateMachines
 {
     using System;
-    using System.Collections.Generic;
     using System.Threading.Tasks;
     using Contracts;
     using MassTransit;
@@ -47,8 +46,8 @@ namespace Sample.Components.StateMachines
                 if (context.ExpirationTime.HasValue)
                     sc.TimeToLive = context.ExpirationTime.Value.ToUniversalTime() - DateTime.UtcNow;
 
-                foreach (KeyValuePair<string, object> header in context.Headers.GetAll())
-                    sc.Headers.Set(header.Key, header.Value);
+                foreach (var (key, value) in context.Headers.GetAll())
+                    sc.Headers.Set(key, value);
             });
 
             await next.Execute(context);

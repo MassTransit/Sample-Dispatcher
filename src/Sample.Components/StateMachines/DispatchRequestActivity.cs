@@ -31,9 +31,7 @@ namespace Sample.Components.StateMachines
 
         public async Task Execute(BehaviorContext<TransactionState, DispatchRequest> context, IBehavior<TransactionState, DispatchRequest> next)
         {
-            var consumeContext = context.GetPayload<ConsumeContext<DispatchRequest>>();
-
-            await consumeContext.Forward(_locator.DispatchRequestEndpointAddress);
+            await context.Forward(_locator.DispatchRequestEndpointAddress);
 
             await next.Execute(context);
         }

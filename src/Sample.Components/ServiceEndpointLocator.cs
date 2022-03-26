@@ -9,15 +9,11 @@ namespace Sample.Components
     public class ServiceEndpointLocator :
         IServiceEndpointLocator
     {
-        readonly IEndpointNameFormatter _formatter;
-
         public ServiceEndpointLocator(IEndpointNameFormatter formatter)
         {
-            _formatter = formatter;
-
-            TransactionStateEndpointAddress = new Uri($"exchange:{_formatter.Saga<TransactionState>()}");
-            DispatchRequestEndpointAddress = new Uri($"exchange:{_formatter.Consumer<DispatchRequestConsumer>()}");
-            DispatchResponseEndpointAddress = new Uri($"exchange:{_formatter.Saga<TransactionState>()}");
+            TransactionStateEndpointAddress = new Uri($"exchange:{formatter.Saga<TransactionState>()}");
+            DispatchRequestEndpointAddress = new Uri($"exchange:{formatter.Consumer<DispatchRequestConsumer>()}");
+            DispatchResponseEndpointAddress = new Uri($"exchange:{formatter.Saga<TransactionState>()}");
         }
 
         public Uri TransactionStateEndpointAddress { get; }

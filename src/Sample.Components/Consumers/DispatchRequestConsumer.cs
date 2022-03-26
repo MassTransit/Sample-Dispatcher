@@ -28,7 +28,7 @@ namespace Sample.Components.Consumers
                 return;
             }
 
-            DispatchRequest request = context.Message;
+            var request = context.Message;
             var routeResult = await _routingService.RouteRequest(request.RoutingKey);
 
             if (routeResult.Disposition is RouteDisposition.Unhandled or RouteDisposition.Ambiguous)

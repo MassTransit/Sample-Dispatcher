@@ -1,6 +1,7 @@
 namespace Sample.Service
 {
     using System;
+    using System.Diagnostics;
     using System.Reflection;
     using System.Threading.Tasks;
     using Components;
@@ -12,6 +13,9 @@ namespace Sample.Service
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
+    using OpenTelemetry;
+    using OpenTelemetry.Resources;
+    using OpenTelemetry.Trace;
     using Serilog;
     using Serilog.Events;
     using Shared;
@@ -30,8 +34,6 @@ namespace Sample.Service
                 .Enrich.FromLogContext()
                 .WriteTo.Console()
                 .CreateLogger();
-
-            using var telemetry = ConfigureOpenTelemetryExtensions.AddOpenTelemetry("service");
 
             var host = CreateHostBuilder(args).Build();
 
@@ -98,6 +100,29 @@ namespace Sample.Service
                     services.AddOptions<MassTransitHostOptions>().Configure(options =>
                     {
                         options.WaitUntilStarted = true;
+                    });
+
+                    services.AddOpenTelemetryTracing(builder =>
+                    {
+                        builder.SetResourceBuilder(ResourceBuilder.CreateDefault()
+                                .AddService("service")
+                                .AddTelemetrySdk()
+                                .AddEnvironmentVariableDetector())
+                            .AddSource("MassTransit")
+                            .AddJaegerExporter(o =>
+                            {
+                                o.AgentHost = SampleConfigurationExtensions.IsRunningInContainer ? "jaeger" : "localhost";
+                                o.AgentPort = 6831;
+                                o.MaxPayloadSizeInBytes = 4096;
+                                o.ExportProcessorType = ExportProcessorType.Batch;
+                                o.BatchExportProcessorOptions = new BatchExportProcessorOptions<Activity>
+                                {
+                                    MaxQueueSize = 2048,
+                                    ScheduledDelayMilliseconds = 5000,
+                                    ExporterTimeoutMilliseconds = 30000,
+                                    MaxExportBatchSize = 512,
+                                };
+                            });
                     });
                 })
                 .UseSerilog();

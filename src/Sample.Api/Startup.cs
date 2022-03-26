@@ -1,6 +1,7 @@
 namespace Sample.Api
 {
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Text.Json;
     using System.Text.Json.Nodes;
@@ -16,6 +17,9 @@ namespace Sample.Api
     using Microsoft.Extensions.Diagnostics.HealthChecks;
     using Microsoft.Extensions.Hosting;
     using Microsoft.OpenApi.Models;
+    using OpenTelemetry;
+    using OpenTelemetry.Resources;
+    using OpenTelemetry.Trace;
     using Shared;
 
 
@@ -32,6 +36,30 @@ namespace Sample.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+
+            services.AddOpenTelemetryTracing(builder =>
+            {
+                builder.SetResourceBuilder(ResourceBuilder.CreateDefault()
+                        .AddService("api")
+                        .AddTelemetrySdk()
+                        .AddEnvironmentVariableDetector())
+                    .AddSource("MassTransit")
+                    .AddAspNetCoreInstrumentation()
+                    .AddJaegerExporter(o =>
+                    {
+                        o.AgentHost = SampleConfigurationExtensions.IsRunningInContainer ? "jaeger" : "localhost";
+                        o.AgentPort = 6831;
+                        o.MaxPayloadSizeInBytes = 4096;
+                        o.ExportProcessorType = ExportProcessorType.Batch;
+                        o.BatchExportProcessorOptions = new BatchExportProcessorOptions<Activity>
+                        {
+                            MaxQueueSize = 2048,
+                            ScheduledDelayMilliseconds = 5000,
+                            ExporterTimeoutMilliseconds = 30000,
+                            MaxExportBatchSize = 512,
+                        };
+                    });
+            });
 
             services.AddMassTransit(x =>
             {
