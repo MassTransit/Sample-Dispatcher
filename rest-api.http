@@ -13,8 +13,6 @@ Content-Type: application/json
   client.global.set("transactionId", response.body.transactionId)
 %}
 
-<> 2022-05-17T085108.200.json
-
 ###
 
 # @name dispatchResponse 
@@ -26,5 +24,3 @@ Content-Type: application/json
   "transactionId": "{{transactionId}}",
   "body": "Pong"
 }
-
-<> 2022-05-17T085119.200.json
