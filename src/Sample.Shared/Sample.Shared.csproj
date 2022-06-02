@@ -5,8 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MassTransit.RabbitMQ" Version="8.0.1-develop.407" />
-    <PackageReference Include="OpenTelemetry.Exporter.Jaeger" Version="1.2.0-rc3" />
+    <PackageReference Include="MassTransit.RabbitMQ" Version="8.0.3-develop.472" />
+    <PackageReference Include="OpenTelemetry.Exporter.Jaeger" Version="1.2.0" />
     <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.0.0-rc9" />
   </ItemGroup>
 

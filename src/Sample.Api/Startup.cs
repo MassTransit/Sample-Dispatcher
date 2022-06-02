@@ -114,29 +114,7 @@ namespace Sample.Api
         static Task HealthCheckResponseWriter(HttpContext context, HealthReport result)
         {
             context.Response.ContentType = "application/json";
-            return context.Response.WriteAsync(ToJsonString(result));
-        }
-
-        static string ToJsonString(HealthReport result)
-        {
-            var healthResult = new JsonObject
-            {
-                ["status"] = result.Status.ToString(),
-                ["results"] = new JsonObject(result.Entries.Select(entry => new KeyValuePair<string, JsonNode>(entry.Key,
-                    new JsonObject
-                    {
-                        ["status"] = entry.Value.Status.ToString(),
-                        ["description"] = entry.Value.Description,
-                        ["data"] = JsonSerializer.SerializeToNode(entry.Value.Data, SystemTextJsonMessageSerializer.Options)
-                    }))!)
-            };
-
-            var options = new JsonSerializerOptions
-            {
-                WriteIndented = true,
-            };
-
-            return healthResult.ToJsonString(options);
+            return context.Response.WriteAsync(result.ToJsonString());
         }
     }
 }
